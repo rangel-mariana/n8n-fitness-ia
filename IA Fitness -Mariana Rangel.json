@@ -1,0 +1,885 @@
+{
+  "name": "IA Fitness",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.prompt_entrada }}",
+        "options": {
+          "systemMessage": "={{ $json.prompt_saida }}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        -928,
+        352
+      ],
+      "id": "cc975afb-9fbd-4ab2-a7d4-317f0882fc17",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Use isto para obter informações sobre a tabela Documents no Supabase e fornecer Análise de Inteligência e Ensinar o aluno sobre Atividade Fisica",
+        "tableName": {
+          "__rl": true,
+          "value": "documents",
+          "mode": "list",
+          "cachedResultName": "documents"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        -576,
+        944
+      ],
+      "id": "41c7eb97-ec08-47bb-bee5-1bf969a7d4bb",
+      "name": "Supabase Vector Store1",
+      "credentials": {
+        "supabaseApi": {
+          "id": "WLGDuqOUR5jH3XSp",
+          "name": "Supabase account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "sentence-transformers/all-mpnet-base-v2",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsHuggingFaceInference",
+      "typeVersion": 1,
+      "position": [
+        -288,
+        944
+      ],
+      "id": "bbb88259-2419-4bfd-8542-7f9c7c11a844",
+      "name": "Embeddings HuggingFace Inference",
+      "credentials": {
+        "huggingFaceApi": {
+          "id": "at83ctuTfy9Hwg0U",
+          "name": "HuggingFaceApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1fNidbDtnVn5GCePQvDY9s_Mdr7fltNOj-u8Z2ytc2cs",
+          "mode": "list",
+          "cachedResultName": "Respostas_Fitness",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1fNidbDtnVn5GCePQvDY9s_Mdr7fltNOj-u8Z2ytc2cs/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1515466474,
+          "mode": "list",
+          "cachedResultName": "Respostas ao formulário 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1fNidbDtnVn5GCePQvDY9s_Mdr7fltNOj-u8Z2ytc2cs/edit#gid=1515466474"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -1472,
+        400
+      ],
+      "id": "926b2302-b728-41c6-8f1b-b8fd99cebf04",
+      "name": "Get row(s) in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "e99KlxXhF4spbtXF",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        -1264,
+        496
+      ],
+      "id": "07d8739e-cf0a-41b5-af63-be6e272cecec",
+      "name": "Limit1"
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "tableName": {
+          "__rl": true,
+          "value": "documents",
+          "mode": "list",
+          "cachedResultName": "documents"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        -144,
+        1104
+      ],
+      "id": "6f1a208f-c5dd-44e2-b2a7-fe6cfdcf9ed9",
+      "name": "Supabase Vector Store",
+      "credentials": {
+        "supabaseApi": {
+          "id": "WLGDuqOUR5jH3XSp",
+          "name": "Supabase account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chunkOverlap": 100,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "typeVersion": 1,
+      "position": [
+        384,
+        1216
+      ],
+      "id": "94d8cde4-1914-41b9-b5bf-9e9e17635774",
+      "name": "Recursive Character Text Splitter1"
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "tableId": "documents",
+        "filterType": "string",
+        "filterString": "=metadata->>file_id=like.*{{ $json.file_id }}*"
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -304,
+        1280
+      ],
+      "id": "d36efc36-ffee-454f-8d5b-dd8d7d258b68",
+      "name": "Delete a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "WLGDuqOUR5jH3XSp",
+          "name": "Supabase account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonMode": "expressionData",
+        "jsonData": "={{ $json.text }}",
+        "textSplittingMode": "custom",
+        "options": {
+          "metadata": {
+            "metadataValues": [
+              {
+                "name": "file_id",
+                "value": "={{ $('Search files and folders1').item.json.id }}"
+              },
+              {
+                "name": "file_name",
+                "value": "={{ $('Search files and folders1').item.json.name }}"
+              }
+            ]
+          }
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        240,
+        1088
+      ],
+      "id": "0d48f7c8-b1d9-4555-9ae4-bc6a790d053d",
+      "name": "Default Data Loader"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -736,
+        752
+      ],
+      "id": "7bdf9435-c02c-45b0-9a96-91313b59642e",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "R7gvEoXPcER2uojj",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentURL": "={{ $json.id }}",
+        "actionsUi": {
+          "actionFields": [
+            {
+              "object": "=text",
+              "action": "replaceAll",
+              "text": "{{PLANO_TREINO}}",
+              "replaceText": "={{ $('Code in JavaScript').item.json.output }}",
+              "index": 0
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        -48,
+        480
+      ],
+      "id": "1ec8e287-3026-41e9-82da-cb94d6d4c372",
+      "name": "Update a document",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "kuyjCUktCoHjrD01",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.documentId }}",
+          "mode": "id"
+        },
+        "options": {
+          "googleFileConversion": {
+            "conversion": {
+              "docsToFormat": "application/pdf"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        288,
+        464
+      ],
+      "id": "27cad057-fb58-4529-9a9b-4382fb66393f",
+      "name": "Download de pdf",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "WCmi9ABTkyMsk01T",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Limit1').item.json['E-mail'] }}",
+        "subject": "=Plano de Treino – {{ $('Limit1').item.json.Nome }}",
+        "emailType": "text",
+        "message": "=Olá, {{ $('Limit1').item.json.Nome }} ! 💪 \n\nO seu plano de treino personalizado está pronto! \nCom base nas suas metas e informações, elaboramos um treino feito sob medida para ajudar você a alcançar os resultados desejados.\n\nConfira o PDF, em anexo, com todas as orientações detalhadas.\n\nBons treinos! \n\nEquipe IA Fitness",
+        "options": {
+          "attachmentsUi": {
+            "attachmentsBinary": [
+              {
+                "property": "=data"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        544,
+        448
+      ],
+      "id": "3a808aa7-1dd1-45c4-9f2f-e5b7aa47b0b7",
+      "name": "Send a message",
+      "webhookId": "837263bf-5126-430f-8aac-5bbd0755af40",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "2bIYjY1mIlv818oY",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "copy",
+        "fileId": {
+          "__rl": true,
+          "value": "1nwxvyhAcwQj8ZutFw2hkIEG7juVTyjWqwntDUD3dGOA",
+          "mode": "list",
+          "cachedResultName": "Template_Plano_Treino",
+          "cachedResultUrl": "https://docs.google.com/document/d/1nwxvyhAcwQj8ZutFw2hkIEG7juVTyjWqwntDUD3dGOA/edit?usp=drivesdk"
+        },
+        "name": "=Plano de Treino - {{ $('Limit1').item.json.Nome }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -368,
+        416
+      ],
+      "id": "1926c271-3bd1-435f-8332-2036232299bd",
+      "name": "Copy file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "WCmi9ABTkyMsk01T",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.file_id }}",
+          "mode": "id"
+        },
+        "options": {
+          "binaryPropertyName": "data",
+          "googleFileConversion": {
+            "conversion": {
+              "docsToFormat": "application/pdf"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -240,
+        1408
+      ],
+      "id": "6ee84663-c44d-4af5-906a-ec361ef197a1",
+      "name": "Download file1",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "WCmi9ABTkyMsk01T",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        288,
+        1424
+      ],
+      "id": "6c51568b-be3c-4747-9cb3-64cdf01c053d",
+      "name": "Extract from File2"
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "filter": {
+          "folderId": {
+            "__rl": true,
+            "value": "1c3lPshBqI1_gXizwSJnBp__AdumPBJGg",
+            "mode": "list",
+            "cachedResultName": "base_conhecimento",
+            "cachedResultUrl": "https://drive.google.com/drive/folders/1c3lPshBqI1_gXizwSJnBp__AdumPBJGg"
+          }
+        },
+        "options": {
+          "fields": [
+            "id",
+            "name",
+            "mimeType",
+            "webViewLink"
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -976,
+        1360
+      ],
+      "id": "c7e90c77-22d0-4e5e-88fd-8934f8e9589d",
+      "name": "Search files and folders1",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "WCmi9ABTkyMsk01T",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -768,
+        1360
+      ],
+      "id": "76a811d7-4977-46a6-ab96-72ffa67b3f12",
+      "name": "Loop Over Items1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1e6a967b-9624-4dc8-91ee-84e04f550899",
+              "name": "file_id",
+              "value": "={{ $('Search files and folders1').item.json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "3177d65a-6a96-45b1-a5b2-b9721591f8b0",
+              "name": "file_name",
+              "value": "={{ $('Search files and folders1').item.json.name }}",
+              "type": "string"
+            },
+            {
+              "id": "9c335ba3-c446-4809-9a4c-e3738a16f4c6",
+              "name": "file_type",
+              "value": "={{ $('Search files and folders1').item.json.mimeType }}",
+              "type": "string"
+            },
+            {
+              "id": "ce153085-6f2e-493b-8ec9-0a56b4fc74f1",
+              "name": "file_url",
+              "value": "={{ $('Search files and folders1').item.json.webViewLink }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -512,
+        1408
+      ],
+      "id": "854234f1-87ec-4194-9fcb-6a1e787563f9",
+      "name": "set files1"
+    },
+    {
+      "parameters": {
+        "jsCode": "function sanitizeText(text) {\n  return text\n    .replace(/[\\u0000-\\u001F\\u007F-\\u009F]/g, ' ')         // caracteres de controle invisíveis\n    .replace(/\\\\u[0-9A-Fa-f]{0,3}(?![0-9A-Fa-f])/g, '')     // unicode incompleto\n    .replace(/\\\\(?![\"\\\\/bfnrtu])/g, '')                    // barras invertidas inválidas\n    .replace(/%PDF-[\\d.]+/, '')                            // assinatura do PDF\n    .replace(/\\/[A-Za-z]+/g, '')                           // palavras com /\n    .replace(/\\\\n|\\\\r|\\\\t/g, ' ')                          // escapes como string\n    .replace(/\\n|\\r|\\t/g, ' ')                             // quebras reais\n    .normalize('NFKC')                                     // normalização\n    .replace(/[^\\x00-\\x7F]/g, '')                          // 🔥 remove qualquer Unicode não-ASCII\n    .replace(/\\s+/g, ' ')                                  // espaços múltiplos\n    .trim();\n}\n\nfor (const item of $input.all()) {\n  const raw = item.json.text || item.json.content || '';\n  const cleanText = sanitizeText(raw);\n\n  item.json.content = cleanText;\n\n  // Segurança extra: stringificar e depois parsear para garantir JSON válido\n  try {\n    const jsonSafe = JSON.stringify({ content: cleanText });\n    const parsed = JSON.parse(jsonSafe);\n    item.json.content = parsed.content;\n  } catch (e) {\n    // fallback\n    item.json.content = cleanText;\n  }\n}\n\nreturn $input.all();\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        496,
+        1424
+      ],
+      "id": "a441e969-222b-4982-8d80-6801d109fcdf",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d32ce4f7-9166-4179-a227-146c215122a9",
+              "name": "prompt_entrada",
+              "value": "Você é um PROFISSIONAL DE EDUCAÇÃO FÍSICA e PERSONAL TRAINER experiente.\n\nElabore um PLANO DE TREINO DE ATIVIDADE FÍSICA PERSONALIZADO, obedecendo rigorosamente às informações fornecidas pelo usuário (dados pessoais, objetivo, frequência semanal, preferências e restrições).\n\nO plano DEVE conter EXATAMENTE 12 TREINOS, distribuídos de forma proporcional à frequência semanal informada, organizados e apresentados claramente por DIA DE TREINO, respeitando pausas adequadas entre sessões.\n\nUtilize prioritariamente a base técnica disponível no contexto (RAG). Recorra à WEB apenas quando a base for insuficiente, sem contradizer ou extrapolar os dados do usuário.\n\nA prescrição deve garantir:\n- segurança articular e muscular;\n- coerência fisiológica;\n- progressão adequada;\n- total compatibilidade com o objetivo informado (força, hipertrofia, emagrecimento, condicionamento ou mobilidade).\n\nRespeite integralmente as preferências e restrições do usuário.\n\nNão invente informações.\nNão cite fontes externas.\nNão explique raciocínio interno.\nRetorne exclusivamente o plano final.\n",
+              "type": "string"
+            },
+            {
+              "id": "761881d7-babe-4875-876e-0743ae489e32",
+              "name": "prompt_saida",
+              "value": "=Você é um PROFESSOR DE EDUCAÇÃO FÍSICA e PERSONAL TRAINER profissional brasileiro.\n\nResponda exclusivamente em português formal, técnico e impessoal.\nNão descreva raciocínio interno, planejamento ou justificativas metodológicas.\n\nElabore um PLANO DE TREINO DE MUSCULAÇÃO PERSONALIZADO, utilizando as informações fornecidas, a base técnica disponível (RAG) e, quando necessário, complementando com busca na WEB para exercícios, execução técnica e recomendações de alimentação.\n\nESTRUTURA OBRIGATÓRIA DO DOCUMENTO:\n\n1. O documento DEVE iniciar, obrigatoriamente, com as INFORMAÇÕES PESSOAIS DO USUÁRIO.\n\nDADOS DO USUÁRIO:\n- Nome: {{ $json[\"Nome\"] }}\n- Sexo: {{ $json[\"Sexo\"] }}\n- Idade: {{ $json[\"Idade\"] }} anos\n- Peso corporal: {{ $json[\"Peso\"] }} kg\n- Estatura: {{ $json[\"Altura\"] }} m\n- Frequência semanal de treino: {{ $json[\"Dias\"] }} dias\n- Objetivo do treinamento: {{ $json[\"Objetivo\"] }}\n- Dicas: {{ $json[\"Dicas\"] }}\n\nDIRETRIZES TÉCNICAS OBRIGATÓRIAS:\n\n2. Após os dados pessoais, apresente uma introdução técnica detalhada, contextualizando o treinamento de musculação conforme o objetivo informado.\n\n3. Considere explicitamente o SEXO do usuário na prescrição do treino, ajustando:\n- volume total de treino;\n- intensidade relativa;\n- seleção de exercícios;\n- intervalos de recuperação;\nde acordo com princípios fisiológicos e biomecânicos adequados.\n\n4. Utilize o campo \"Dicas\" como DIRETRIZ OBRIGATÓRIA de personalização:\n- respeite exercícios, métodos ou estímulos que o usuário gosta ou não gosta;\n- respeite restrições informadas;\n- adapte treinos, alimentação e recomendações gerais às preferências do usuário.\n\n5. Estruture o plano contendo EXATAMENTE 12 TREINOS DISTINTOS.\nCADA TREINO CORRESPONDE A UM ÚNICO DIA DE TREINO.\n\nOs 12 treinos devem ser distribuídos ao longo de semanas, conforme a frequência semanal informada:\n- 2 dias/semana: 6 semanas (2 treinos por semana × 6 semanas = 12 treinos)\n- 3 dias/semana: 4 semanas (3 treinos por semana × 4 semanas = 12 treinos)\n- 4 dias/semana: 3 semanas (4 treinos por semana × 3 semanas = 12 treinos)\n- 6 dias/semana: 2 semanas (6 treinos por semana × 2 semanas = 12 treinos)\n\n6. DISTRIBUIÇÃO DOS DIAS DA SEMANA (OBRIGATÓRIA):\n- Identifique explicitamente os dias da semana de treino;\n- Respeite os dias que o usuário NÃO deseja treinar, conforme indicado nas Dicas;\n- NÃO organize treinos em dias consecutivos sem pausa adequada;\n- Garanta pelo menos 1 dia de descanso estratégico na semana;\n- Caso o usuário não informe dias específicos, distribua os treinos de forma equilibrada (ex.: segunda, quarta, sexta).\n\nESTRUTURA DE CADA TREINO (OBRIGATÓRIA):\n\n7. Cada treino deve conter:\n- Identificação clara da SEMANA e do DIA DE TREINO (ex.: Semana 1 – Dia 1);\n- Nome do treino (ex.: “Treino A – Peito e Tríceps”);\n- Divisão muscular detalhada;\n- De 4 a 6 exercícios por treino;\n- Séries e repetições específicas;\n- Intervalos de descanso adequados ao objetivo;\n- Observações técnicas quando necessário (cadência, controle motor, postura).\n\n8. A prescrição deve respeitar idade, sexo, peso, estatura e frequência semanal, garantindo:\n- progressão adequada;\n- segurança articular e muscular;\n- coerência fisiológica;\n- aplicabilidade prática.\n\nORIENTAÇÕES COMPLEMENTARES (SEÇÃO FINAL):\n\n9. Inclua uma seção final contendo orientações técnicas detalhadas sobre:\n- Aquecimento geral e específico;\n- Alongamento e mobilidade;\n- Estratégias de recuperação muscular;\n- Recomendações gerais de estilo de vida e adesão ao treinamento;\n- Recomendações gerais de alimentação alinhadas ao objetivo, respeitando as Dicas do usuário.\n\n10. Caso informações relevantes não estejam disponíveis na base técnica (RAG), utilize a WEB como apoio para:\n- variação de exercícios;\n- execução correta dos movimentos;\n- recomendações alimentares gerais compatíveis com o objetivo.\n\nRESTRIÇÕES:\n\n11. Não utilize referências bibliográficas explícitas.\n12. Não invente dados pessoais.\n13. Não descreva metodologia, raciocínio interno ou planejamento.\n14. Retorne exclusivamente o PLANO FINAL.\n\nFORMATO DE APRESENTAÇÃO:\n\n- Utilize títulos e subtítulos claros;\n- Organize os treinos por SEMANA e DIA DE TREINO;\n- Texto pronto para exportação em PDF.\n",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1072,
+        432
+      ],
+      "id": "b30312a9-0198-429f-b5c6-2060efb20742",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "documentId": {
+          "__rl": true,
+          "value": "=https://docs.google.com/spreadsheets/d/1fNidbDtnVn5GCePQvDY9s_Mdr7fltNOj-u8Z2ytc2cs/edit?gid=1515466474#gid=1515466474",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1515466474,
+          "mode": "list",
+          "cachedResultName": "Respostas ao formulário 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1fNidbDtnVn5GCePQvDY9s_Mdr7fltNOj-u8Z2ytc2cs/edit#gid=1515466474"
+        },
+        "startIndex": "={{ $('Limit1').item.json.row_number }}"
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        800,
+        608
+      ],
+      "id": "e44b47da-1764-4aff-aa62-94a9c80908bb",
+      "name": "Delete rows or columns from sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "e99KlxXhF4spbtXF",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "seconds"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1760,
+        416
+      ],
+      "id": "2433c4cf-83fd-4826-ab88-055a300197dd",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "jsCode": "let texto = items[0].json.output;\n\n// Remove negrito Markdown (**)\ntexto = texto.replace(/\\*\\*/g, '');\n\n// Remove títulos Markdown (#, ##, ### etc)\ntexto = texto.replace(/^#{1,6}\\s*/gm, '');\n\nitems[0].json.output = texto;\n\nreturn items;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -560,
+        352
+      ],
+      "id": "c89d0bb1-545e-4cd2-8b3c-07005738dd05",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 20
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1184,
+        1360
+      ],
+      "id": "dd4ab7a5-1b70-4f60-9965-94d4b2c1929a",
+      "name": "Schedule Trigger-RAG"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Supabase Vector Store1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings HuggingFace Inference": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Supabase Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          },
+          {
+            "node": "Supabase Vector Store1",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet1": {
+      "main": [
+        [
+          {
+            "node": "Limit1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Character Text Splitter1": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Supabase Vector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete a row": {
+      "main": [
+        []
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a document": {
+      "main": [
+        [
+          {
+            "node": "Download de pdf",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download de pdf": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Copy file": {
+      "main": [
+        [
+          {
+            "node": "Update a document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file1": {
+      "main": [
+        [
+          {
+            "node": "Extract from File2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File2": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search files and folders1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items1": {
+      "main": [
+        [
+          {
+            "node": "Supabase Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "set files1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "set files1": {
+      "main": [
+        [
+          {
+            "node": "Download file1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Delete a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Delete rows or columns from sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Copy file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger-RAG": {
+      "main": [
+        [
+          {
+            "node": "Search files and folders1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "e5757734-a8ab-4216-9edd-b83a500ab1e9",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "da54437c4273e1f84313bf661aaae35600769bb9a9756c648cc29ae3c174bc9b"
+  },
+  "id": "uQjAsEpC8Xfghv4B",
+  "tags": []
+}
